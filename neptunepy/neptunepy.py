@@ -3,12 +3,8 @@
 # @Date:   2017-04-17 21:15:15
 # @Last Modified by:   bryanthayes
 # @Last Modified time: 2017-04-20 23:39:18
-from httpsession import *
+from bhutils import httpsession
 import json, getpass, sys, os, time, math
-import matplotlib.pyplot as plt
-from scipy.misc import imread
-from mpldatacursor import datacursor
-import matplotlib.cm as cm
 import numpy as np
 
 APIDATA = {
@@ -115,7 +111,7 @@ class Neptune():
 	''' Main class to run Neptune Pride API methods '''
 	def __init__(self, gameIndex=0):
 		self.API = APIDATA
-		self.session = HTTPSession()
+		self.session = httpsession.HTTPSession()
 		self.loggedIn = False
 		self.setGameIndex(gameIndex)
 
@@ -185,7 +181,7 @@ class Neptune():
 			raise(e)
 
 	def APICall(self, key):
-		if not self.loggedIn
+		if not self.loggedIn:
 			raise ValueError("You must be logged in to do that!")
 
 		# Issue API Call
