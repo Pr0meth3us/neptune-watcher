@@ -10,4 +10,6 @@ setup(name='neptunepy',
       packages=['neptunepy'],
       dependency_links=['http://github.com/bryantfhayes/bhutils'],
       install_requires=[],
+      test_suite='nose.collector',
+      tests_require=['nose'],
       zip_safe=False)
