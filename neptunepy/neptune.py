@@ -2,12 +2,24 @@
 # @Author: bryanthayes
 # @Date:   2017-04-17 21:15:15
 # @Last Modified by:   bryanthayes
-# @Last Modified time: 2017-04-20 23:39:18
+# @Last Modified time: 2017-04-22 02:47:28
 from bhutils import httpsession
 import json, getpass, sys, os, time, math
 import numpy as np
 
-APIDATA = {
+SERVER_API = {
+	"root_url" : "http://ec2-34-201-27-166.compute-1.amazonaws.com:5000",
+	"reports" : {
+		"method" : "GET",
+		"path" : "/neptune/reports/", # Add tick number suffix
+		"content-type" : "application/x-www-form-urlencoded",
+		"data" : {}
+	}
+}
+
+
+
+NEPTUNE_API = {
 	"root_url" : "https://np.ironhelmet.com",
 	"login" : {
 		"method" : "POST",
@@ -107,93 +119,127 @@ class Player():
 	def __init__(self, player):
 		self.uid = player["uid"]
 
+class Report():
+	def __init__(self, report):
+		self._report = report
+
+		self.fleet_speed = self._report["fleet_speed"]
+		self.paused = self._report["paused"]
+		self.productions = self._report["productions"]
+		self.tick_fragment = self._report["tick_fragment"]
+		self.now = self._report["now"]
+		self.tick_rate = self._report["tick_rate"]
+		self.production_rate = self._report["production_rate"]
+		self.stars_for_victory = self._report["stars_for_victory"]
+		self.game_over = self._report["game_over"]
+		self.started = self._report["started"]
+		self.start_time = self._report["start_time"]
+		self.total_stars = self._report["total_stars"]
+		self.production_counter = self._report["production_counter"]
+		self.trade_scanned = self._report["trade_scanned"]
+		self.tick = self._report["tick"]
+		self.trade_cost = self._report["trade_cost"]
+		self.name = self._report["name"]
+		self.player_uid = self._report["player_uid"]
+		self.admin = self._report["admin"]
+		self.turn_based = self._report["turn_based"]
+		self.war = self._report["war"]
+		self.turn_based_time_out = self._report["turn_based_time_out"]
+
+		self.fleet = {}
+		for key, fleet in self._report["fleets"].items():
+			self.fleet[key] = Fleet(fleet)
+
+		self.players = {}
+		for key, player in self._report["players"].items():
+			self.players[key] = Player(player)
+
+		self.stars = {}
+		for key, star in self._report["stars"].items():
+			self.stars[key] = Star(star)
+
 class Neptune():
 	''' Main class to run Neptune Pride API methods '''
-	def __init__(self, gameIndex=0):
-		self.API = APIDATA
+	def __init__(self):
+		self.API = NEPTUNE_API
 		self.session = httpsession.HTTPSession()
-		self.loggedIn = False
-		self.setGameIndex(gameIndex)
+		self.connected = False
+		self.report = None
+		self.report_history = {}
+		self._gamenumber = None
 
 	def updateIntel(self):
 		# Get intel report
-		try:
-			rv = self.APICall("intel_data")
-		except Exception as e:
-			raise(e)
+		rv = self.APICall(NEPTUNE_API, "intel_data")
 
 		# TODO(bhayes): Do something interesting with this intel
 		self.intel = rv
 
-	def updateUniverse(self, source=None):
-		# Get Full Game Report
-		try:
-			if source == None:
-				rv = self.APICall("full_universe_report")
-			else:
-				rv = self.load(source)
-		except Exception as e:
-			raise(e)
+	def setGameNumber(self, gamenumber):
+		if not self.connected:
+			raise RuntimeError("You must connect first.")
 
-		self.fleet_speed = rv["report"]["fleet_speed"]
-		self.paused = rv["report"]["paused"]
-		self.productions = rv["report"]["productions"]
-		self.tick_fragment = rv["report"]["tick_fragment"]
-		self.now = rv["report"]["now"]
-		self.tick_rate = rv["report"]["tick_rate"]
-		self.production_rate = rv["report"]["production_rate"]
-		self.stars_for_victory = rv["report"]["stars_for_victory"]
-		self.game_over = rv["report"]["game_over"]
-		self.started = rv["report"]["started"]
-		self.start_time = rv["report"]["start_time"]
-		self.total_stars = rv["report"]["total_stars"]
-		self.production_counter = rv["report"]["production_counter"]
-		self.trade_scanned = rv["report"]["trade_scanned"]
-		self.tick = rv["report"]["tick"]
-		self.trade_cost = rv["report"]["trade_cost"]
-		self.name = rv["report"]["name"]
-		self.player_uid = rv["report"]["player_uid"]
-		self.admin = rv["report"]["admin"]
-		self.turn_based = rv["report"]["turn_based"]
-		self.war = rv["report"]["war"]
-		self.turn_based_time_out = rv["report"]["turn_based_time_out"]
+		if gamenumber in self.valid_gamenumbers:
+			self._gamenumber = gamenumber
+			for key in self.API:
+				if "data" in self.API[key]:
+					if "game_number" in self.API[key]["data"]:
+						self.API[key]["data"]["game_number"] = self._gamenumber
+		else:
+			raise RuntimeError("Invalid game number")
 
-		self.fleet = {}
-		for key, fleet in rv["report"]["fleets"].items():
-			self.fleet[key] = Fleet(fleet)
+	def getGameNumber(self):
+		return self._gamenumber
 
-		self.players = {}
-		for key, player in rv["report"]["players"].items():
-			self.players[key] = Player(player)
+	def listGames(self):
+		if not self.connected:
+			raise RuntimeError("You must connect first")
 
-		self.stars = {}
-		for key, star in rv["report"]["stars"].items():
-			self.stars[key] = Star(star)
+	def fetchLiveReport(self):
+		if not self.connected:
+			raise RuntimeError("You must connect first")
+		elif not self._gamenumber:
+			raise RuntimeError("You must select a game number first.")
 
-		self.raw_universe_data = rv
+		rv = self.APICall(NEPTUNE_API, "full_universe_report")
+		self.report = Report(rv["report"])
+		self.report_history[self.report.tick] = self.report
+
+	def fetchFromServer(self, tick):
+		SERVER_API["reports"]["path"] += str(tick)
+		rv = self.APICall(SERVER_API, "reports")
+		self.report = Report(rv["report"])
+		self.report_history[self.report.tick] = self.report
+
+	def fetchFromFile(self, filename):
+		rv = self.loadJSON(filename)
+		self.report = Report(rv["report"])
+		self.report_history[self.report.tick] = self.report
+
+	def fetchAllFromServer(self):
+		SERVER_API["reports"]["path"] += "0"
+		rv = self.APICall(SERVER_API, "reports")
+		for index, report in enumerate(rv["history"]):
+			self.report = Report(rv["history"][index]["report"])
+			self.report_history[self.report.tick] = self.report
 
 	def loadJSON(self, filename):
 		''' Loads JSON data to target variable '''
-		try:
-			with open(filename, 'r') as fp:
-				return json.load(fp)
-		except Exception as e:
-			raise(e)
+		with open(filename, 'r') as fp:
+			return json.load(fp)
 
-	def APICall(self, key):
-		if not self.loggedIn:
-			raise ValueError("You must be logged in to do that!")
-
+	def APICall(self, api, key):
 		# Issue API Call
-		try:
-			rv = self.session.POST(self.API["root_url"], self.API[key]["path"], self.API[key]["data"], {"Content-Type" : self.API[key]["content-type"]})
-			if rv == None:
-				raise SystemError("Bad post data")
-			return rv
-		except Exception as e:
-			raise(e)
+		if api[key]["method"] == "GET":
+			rv = self.session.GET(api["root_url"], api[key]["path"], api[key]["data"])
+		elif api[key]["method"] == "POST":
+			rv = self.session.POST(api["root_url"], api[key]["path"], api[key]["data"], {"Content-Type" : api[key]["content-type"]})
+		if rv == None:
+			raise RuntimeError("HTTP request failed")
 
-	def login(self, username, password, attempts=3):
+		return rv
+
+	def connect(self, username, password, attempts=3):
 		''' Logs into Neptune's Pride 2 account using username/password '''
 
 		# Load data with username and password info
@@ -219,22 +265,15 @@ class Neptune():
 					sys.exit()
 
 			# LOGIN SUCCESS!
-			self.loggedIn = True
+			self.connected = True
 			break
+
+		self.games_in = rv[1]["games_in"]
+		self.open_games = rv[1]["open_games"]
+		self.valid_gamenumbers = [game["number"] for game in self.open_games]
 
 		# TODO(bhayes): Store logged in JSON data into class for use later
 		return rv
-
-	def setGameIndex(self, index):
-		''' Injects game number into API data '''
-		try:
-			self.gameIndex = index
-			for key in self.API:
-				if "data" in self.API[key]:
-					if "game_number" in self.API[key]["data"]:
-						self.API[key]["data"]["game_number"] = data[1]["open_games"][index]["number"]
-		except Exception as e:
-			raise(e)
 
 	def save(self, filename, data):
 		with open(filename, 'w') as fp:
