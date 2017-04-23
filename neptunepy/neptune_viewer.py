@@ -52,8 +52,8 @@ class NeptuneViewer(object):
         print("You selected: {}".format(self.displayed_stars[event.ind[0]]))
 
     def downloadHistory(self, neptune):
-        if not os.path.exists("report_history"):
-            os.makedirs("report_history")
+        if not os.path.exists("reports"):
+            os.makedirs("reports")
         for index, report in neptune.report_history.items():
             fig, ax = plt.subplots()
             ax.set_title("{0} ({1})".format(report.name, report.tick))
@@ -81,7 +81,7 @@ class NeptuneViewer(object):
                         y.append(-star.position.y)
                 ax.scatter(x, y, zorder=1, color=next(colors))
 
-            fig.savefig("report_history/tick-{}.png".format(report.tick))
+            fig.savefig("reports/tick-{}.png".format(report.tick))
             fig.clf()
 
 def main():

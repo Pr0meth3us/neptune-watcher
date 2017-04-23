@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='neptunepy',
-      version='0.1',
+      version='0.2',
       description='A python wrapper for the Neptunes Pride API',
       url='http://github.com/bryantfhayes/neptunepy',
       author='Bryant Hayes',
