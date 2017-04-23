@@ -2,11 +2,12 @@
 # @Author: bryanthayes
 # @Date:   2017-04-17 21:15:15
 # @Last Modified by:   bryanthayes
-# @Last Modified time: 2017-04-22 02:47:28
+# @Last Modified time: 2017-04-23 00:40:07
 from bhutils import httpsession
 import json, getpass, sys, os, time, math
 import numpy as np
 
+''' Server API for communicating with the EC2 instance '''
 SERVER_API = {
 	"root_url" : "http://ec2-34-201-27-166.compute-1.amazonaws.com:5000",
 	"reports" : {
@@ -17,8 +18,7 @@ SERVER_API = {
 	}
 }
 
-
-
+''' Neptune API for communicating with the Neptune Pride servers '''
 NEPTUNE_API = {
 	"root_url" : "https://np.ironhelmet.com",
 	"login" : {
@@ -70,6 +70,7 @@ NEPTUNE_API = {
 }
 
 class Position():
+	''' Position of object on XY plane '''
 	def __init__(self, x, y):
 		self.x = x
 		self.y = y
@@ -82,7 +83,6 @@ class Fleet():
 	def __init__(self, fleet):
 		self.uid = fleet["uid"]
 
-# TODO(bhayes): Finish Star class, and it's json parsing
 class Star():
 	def __init__(self, star):
 		# Public information
@@ -121,41 +121,44 @@ class Player():
 
 class Report():
 	def __init__(self, report):
-		self._report = report
+		self.json_report = report
 
-		self.fleet_speed = self._report["fleet_speed"]
-		self.paused = self._report["paused"]
-		self.productions = self._report["productions"]
-		self.tick_fragment = self._report["tick_fragment"]
-		self.now = self._report["now"]
-		self.tick_rate = self._report["tick_rate"]
-		self.production_rate = self._report["production_rate"]
-		self.stars_for_victory = self._report["stars_for_victory"]
-		self.game_over = self._report["game_over"]
-		self.started = self._report["started"]
-		self.start_time = self._report["start_time"]
-		self.total_stars = self._report["total_stars"]
-		self.production_counter = self._report["production_counter"]
-		self.trade_scanned = self._report["trade_scanned"]
-		self.tick = self._report["tick"]
-		self.trade_cost = self._report["trade_cost"]
-		self.name = self._report["name"]
-		self.player_uid = self._report["player_uid"]
-		self.admin = self._report["admin"]
-		self.turn_based = self._report["turn_based"]
-		self.war = self._report["war"]
-		self.turn_based_time_out = self._report["turn_based_time_out"]
+		self.fleet_speed = self.json_report["fleet_speed"]
+		self.paused = self.json_report["paused"]
+		self.productions = self.json_report["productions"]
+		self.tick_fragment = self.json_report["tick_fragment"]
+		self.now = self.json_report["now"]
+		self.tick_rate = self.json_report["tick_rate"]
+		self.production_rate = self.json_report["production_rate"]
+		self.stars_for_victory = self.json_report["stars_for_victory"]
+		self.game_over = self.json_report["game_over"]
+		self.started = self.json_report["started"]
+		self.start_time = self.json_report["start_time"]
+		self.total_stars = self.json_report["total_stars"]
+		self.production_counter = self.json_report["production_counter"]
+		self.trade_scanned = self.json_report["trade_scanned"]
+		self.tick = self.json_report["tick"]
+		self.trade_cost = self.json_report["trade_cost"]
+		self.name = self.json_report["name"]
+		self.player_uid = self.json_report["player_uid"]
+		self.admin = self.json_report["admin"]
+		self.turn_based = self.json_report["turn_based"]
+		self.war = self.json_report["war"]
+		self.turn_based_time_out = self.json_report["turn_based_time_out"]
 
+		# Generate fleet objects
 		self.fleet = {}
-		for key, fleet in self._report["fleets"].items():
+		for key, fleet in self.json_report["fleets"].items():
 			self.fleet[key] = Fleet(fleet)
 
+		# Generate player objects
 		self.players = {}
-		for key, player in self._report["players"].items():
+		for key, player in self.json_report["players"].items():
 			self.players[key] = Player(player)
 
+		# Generate star objects
 		self.stars = {}
-		for key, star in self._report["stars"].items():
+		for key, star in self.json_report["stars"].items():
 			self.stars[key] = Star(star)
 
 class Neptune():
@@ -196,6 +199,7 @@ class Neptune():
 			raise RuntimeError("You must connect first")
 
 	def fetchLiveReport(self):
+		''' Download full universe report for latest tick from neptune server '''
 		if not self.connected:
 			raise RuntimeError("You must connect first")
 		elif not self._gamenumber:
@@ -206,17 +210,20 @@ class Neptune():
 		self.report_history[self.report.tick] = self.report
 
 	def fetchFromServer(self, tick):
+		''' Download full universe report for specified tick from EC2 Instance'''
 		SERVER_API["reports"]["path"] += str(tick)
 		rv = self.APICall(SERVER_API, "reports")
 		self.report = Report(rv["report"])
 		self.report_history[self.report.tick] = self.report
 
 	def fetchFromFile(self, filename):
+		''' Load report data from a local file '''
 		rv = self.loadJSON(filename)
 		self.report = Report(rv["report"])
 		self.report_history[self.report.tick] = self.report
 
 	def fetchAllFromServer(self):
+		''' Download tick "0" which tells server to send you all it's report data '''
 		SERVER_API["reports"]["path"] += "0"
 		rv = self.APICall(SERVER_API, "reports")
 		for index, report in enumerate(rv["history"]):
@@ -229,7 +236,7 @@ class Neptune():
 			return json.load(fp)
 
 	def APICall(self, api, key):
-		# Issue API Call
+		''' Issue API call using API and a corresponding key '''
 		if api[key]["method"] == "GET":
 			rv = self.session.GET(api["root_url"], api[key]["path"], api[key]["data"])
 		elif api[key]["method"] == "POST":
