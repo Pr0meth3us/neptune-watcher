@@ -2,7 +2,7 @@
 # @Author: bryanthayes
 # @Date:   2017-04-22 23:39:39
 # @Last Modified by:   bryanthayes
-# @Last Modified time: 2017-04-23 01:42:47
+# @Last Modified time: 2017-04-23 01:47:40
 from flask import Flask, jsonify, abort
 from neptunepy import neptune
 import os, json, time, threading, argparse, sys
@@ -46,7 +46,7 @@ def get_report(tick):
     # If tick is zero, return all tick history
     if tick == 0:
         data = []
-        for filename in os.listdir('args.dir'):
+        for filename in os.listdir(args.dir):
             if filename.endswith(".json"):
                 with open(filename, 'r') as fp:
                     data.append(json.load(fp))
