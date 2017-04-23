@@ -9,7 +9,7 @@ setup(name='neptunepy',
       license='MIT',
       packages=['neptunepy'],
       dependency_links=['https://github.com/bryantfhayes/bhutils/zipball/master#egg=bhutils-1.0.1'],
-      install_requires=['bhutils', 'mpldatacursor'],
+      install_requires=['bhutils', 'mpldatacursor', 'PyQt4'],
       test_suite='nose.collector',
       tests_require=['nose'],
       zip_safe=False)

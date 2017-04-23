@@ -2,7 +2,7 @@
 # @Author: bryanthayes
 # @Date:   2017-04-17 21:15:15
 # @Last Modified by:   bryanthayes
-# @Last Modified time: 2017-04-23 00:40:07
+# @Last Modified time: 2017-04-23 00:59:25
 from bhutils import httpsession
 import json, getpass, sys, os, time, math
 import numpy as np
@@ -164,7 +164,6 @@ class Report():
 class Neptune():
 	''' Main class to run Neptune Pride API methods '''
 	def __init__(self):
-		self.API = NEPTUNE_API
 		self.session = httpsession.HTTPSession()
 		self.connected = False
 		self.report = None
@@ -184,10 +183,10 @@ class Neptune():
 
 		if gamenumber in self.valid_gamenumbers:
 			self._gamenumber = gamenumber
-			for key in self.API:
-				if "data" in self.API[key]:
-					if "game_number" in self.API[key]["data"]:
-						self.API[key]["data"]["game_number"] = self._gamenumber
+			for key in NEPTUNE_API:
+				if "data" in NEPTUNE_API[key]:
+					if "game_number" in NEPTUNE_API[key]["data"]:
+						NEPTUNE_API[key]["data"]["game_number"] = self._gamenumber
 		else:
 			raise RuntimeError("Invalid game number")
 
@@ -250,17 +249,17 @@ class Neptune():
 		''' Logs into Neptune's Pride 2 account using username/password '''
 
 		# Load data with username and password info
-		self.API["login"]["data"]["alias"] = username
-		self.API["login"]["data"]["password"] = password
+		NEPTUNE_API["login"]["data"]["alias"] = username
+		NEPTUNE_API["login"]["data"]["password"] = password
 
 		# Issue login POST request
 		while True:
 			try:
-				rv = self.session.POST(self.API["root_url"], self.API["login"]["path"], self.API["login"]["data"], {"Content-Type" : self.API["login"]["content-type"]})
+				rv = self.session.POST(NEPTUNE_API["root_url"], NEPTUNE_API["login"]["path"], NEPTUNE_API["login"]["data"], {"Content-Type" : NEPTUNE_API["login"]["content-type"]})
 				if (rv[0] != "meta:login_success"):
 					raise ValueError('LOGIN FAILED')
 
-				rv = self.session.POST(self.API["root_url"], self.API["init_player"]["path"], self.API["init_player"]["data"], {"Content-Type" : self.API["init_player"]["content-type"]})
+				rv = self.session.POST(NEPTUNE_API["root_url"], NEPTUNE_API["init_player"]["path"], NEPTUNE_API["init_player"]["data"], {"Content-Type" : NEPTUNE_API["init_player"]["content-type"]})
 				if (rv[0] != "meta:init_player"):
 					raise ValueError('INIT FAILED')
 			except Exception as e:

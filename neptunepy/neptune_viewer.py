@@ -2,12 +2,11 @@
 # @Author: bryanthayes
 # @Date:   2017-04-21 23:19:37
 # @Last Modified by:   bryanthayes
-# @Last Modified time: 2017-04-22 13:37:17
+# @Last Modified time: 2017-04-23 01:12:06
 import neptunepy.neptune as npt
 import getpass, os, time
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.misc import imread
 from mpldatacursor import datacursor
 import matplotlib.cm as cm
 
