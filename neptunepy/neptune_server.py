@@ -48,7 +48,8 @@ def get_report(tick):
         data = []
         for filename in os.listdir(args.dir):
             if filename.endswith(".json"):
-                with open(filename, 'r') as fp:
+                filepath = os.path.join(args.dir, filename)
+                with open(filepath, 'r') as fp:
                     data.append(json.load(fp))
         return jsonify({"history" : data})
 
