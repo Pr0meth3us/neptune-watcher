@@ -2,9 +2,9 @@
 # @Author: bryanthayes
 # @Date:   2017-04-21 23:19:37
 # @Last Modified by:   bryanthayes
-# @Last Modified time: 2017-04-23 01:12:06
+# @Last Modified time: 2017-04-24 12:04:57
 import neptunepy.neptune as npt
-import getpass, os, time
+import getpass, os, time, json
 import numpy as np
 import matplotlib.pyplot as plt
 from mpldatacursor import datacursor
@@ -81,8 +81,13 @@ class NeptuneViewer(object):
                         y.append(-star.position.y)
                 ax.scatter(x, y, zorder=1, color=next(colors))
 
+            # Write img file
             fig.savefig("reports/tick-{}.png".format(report.tick))
             fig.clf()
+
+            # Write json data file
+            with open("reports/tick-{}.json".format(report.tick), 'w') as fp:
+                json.dump(report.json_report, fp, sort_keys = True, indent = 4)
 
 def main():
     # username = input("Username: ")
@@ -106,7 +111,7 @@ def main():
     #         print("ERROR: Invalid entry, try again.")
     #         continue
 
-    neptune.fetchAllFromServer()
+    neptune.fetchFromServer(239)
 
     nv = NeptuneViewer(neptune)
     nv.downloadHistory(neptune)

@@ -2,7 +2,7 @@
 # @Author: bryanthayes
 # @Date:   2017-04-17 21:15:15
 # @Last Modified by:   bryanthayes
-# @Last Modified time: 2017-04-23 00:59:25
+# @Last Modified time: 2017-04-24 11:54:00
 from bhutils import httpsession
 import json, getpass, sys, os, time, math
 import numpy as np
@@ -212,13 +212,14 @@ class Neptune():
 		''' Download full universe report for specified tick from EC2 Instance'''
 		SERVER_API["reports"]["path"] += str(tick)
 		rv = self.APICall(SERVER_API, "reports")
-		self.report = Report(rv["report"])
+		print(rv)
+		self.report = Report(rv)
 		self.report_history[self.report.tick] = self.report
 
 	def fetchFromFile(self, filename):
 		''' Load report data from a local file '''
 		rv = self.loadJSON(filename)
-		self.report = Report(rv["report"])
+		self.report = Report(rv)
 		self.report_history[self.report.tick] = self.report
 
 	def fetchAllFromServer(self):
@@ -226,7 +227,7 @@ class Neptune():
 		SERVER_API["reports"]["path"] += "0"
 		rv = self.APICall(SERVER_API, "reports")
 		for index, report in enumerate(rv["history"]):
-			self.report = Report(rv["history"][index]["report"])
+			self.report = Report(rv["history"][index])
 			self.report_history[self.report.tick] = self.report
 
 	def loadJSON(self, filename):
