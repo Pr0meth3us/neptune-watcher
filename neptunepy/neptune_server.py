@@ -2,12 +2,12 @@
 # @Author: bryanthayes
 # @Date:   2017-04-22 23:39:39
 # @Last Modified by:   bryanthayes
-# @Last Modified time: 2017-04-23 01:47:40
+# @Last Modified time: 2017-04-24 13:44:23
 from flask import Flask, jsonify, abort
 from neptunepy import neptune
 import os, json, time, threading, argparse, sys
 
-''' Parse command line arguments '''
+# Parse command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--gamenumber', required=True)
 parser.add_argument('--dir', required=True)
@@ -66,6 +66,7 @@ def get_report(tick):
     return jsonify(data)
 
 if __name__ == '__main__':
+    
     # Validate output directory
     if not os.path.isdir(args.dir):
         print("ERROR: Invalid directory!")

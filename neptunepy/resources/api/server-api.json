@@ -1,0 +1,9 @@
+{
+	"root_url" : "http://ec2-34-201-27-166.compute-1.amazonaws.com:5000",
+	"reports" : {
+		"method" : "GET",
+		"path" : "/neptune/reports/",
+		"content-type" : "application/x-www-form-urlencoded",
+		"data" : {}
+	}
+}

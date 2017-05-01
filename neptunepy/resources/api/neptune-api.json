@@ -1,0 +1,49 @@
+{
+	"root_url" : "https://np.ironhelmet.com",
+	"login" : {
+		"method" : "POST",
+		"path" : "/arequest/login",
+		"content-type" : "application/x-www-form-urlencoded",
+		"data" : {
+			"type" : "login",
+			"alias" : "USERNAME",
+			"password" : "PASSWORD"
+		}
+	},
+	"init_player" : {
+		"method" : "POST",
+		"path" : "/mrequest/init_player",
+		"content-type" : "application/x-www-form-urlencoded",
+		"data" : {
+			"type" : "init_player"
+		}
+	},
+	"full_universe_report" : {
+		"method" : "POST",
+		"path" : "/trequest/order",
+		"content-type" : "application/x-www-form-urlencoded",
+		"data" : {
+			"type" : "order",
+			"order" : "full_universe_report",
+			"game_number" : "GAMENUMBER"
+		}
+	},
+	"fetch_unread_count" : {
+		"method" : "POST",
+		"path" : "/trequest/fetch_unread_count",
+		"content-type" : "application/x-www-form-urlencoded",
+		"data" : {
+			"type" : "fetch_unread_count",
+			"game_number" : "GAMENUMBER"
+		}
+	},
+	"intel_data" : {
+		"method" : "POST",
+		"path" : "/trequest/intel_data",
+		"content-type" : "application/x-www-form-urlencoded",
+		"data" : {
+			"type" : "intel_data",
+			"game_number" : "GAMENUMBER"
+		}
+	}
+}

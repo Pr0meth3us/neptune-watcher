@@ -2,13 +2,15 @@
 # @Author: bryanthayes
 # @Date:   2017-04-21 23:19:37
 # @Last Modified by:   bryanthayes
-# @Last Modified time: 2017-04-24 12:04:57
+# @Last Modified time: 2017-04-24 13:26:31
 import neptunepy.neptune as npt
 import getpass, os, time, json
 import numpy as np
 import matplotlib.pyplot as plt
 from mpldatacursor import datacursor
 import matplotlib.cm as cm
+
+# TODO: Read config file and adjust behavior (login, defaults, etc.)
 
 class NeptuneViewer(object):
     def __init__(self, neptune):

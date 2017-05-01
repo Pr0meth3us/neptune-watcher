@@ -2,10 +2,13 @@
 # @Author: bryanthayes
 # @Date:   2017-04-17 21:15:15
 # @Last Modified by:   bryanthayes
-# @Last Modified time: 2017-04-24 11:54:00
+# @Last Modified time: 2017-04-28 11:05:31
 from bhutils import httpsession
 import json, getpass, sys, os, time, math
 import numpy as np
+from pkg_resources import resource_string, resource_listdir, resource_stream
+
+# TODO: Convert API to use api resource
 
 ''' Server API for communicating with the EC2 instance '''
 SERVER_API = {
@@ -78,10 +81,25 @@ class Position():
 	def distance(self, target):
 		return math.sqrt((target.x - self.x)**2 + (target.y - self.y)**2)
 
-# TODO(bhayes): Finish Fleet class, and it's json parsing
+# TODO: Finish Fleet class, and it's json parsing
 class Fleet():
 	def __init__(self, fleet):
 		self.uid = fleet["uid"]
+		self.name = fleet["n"]
+		self.targets = fleet["o"]
+		self.owner = fleet["puid"]
+
+	def getTargetStar(self):
+		for target in self.targets:
+			return target[1]
+
+	def isTargetingPlayer(self, player_uid, report):
+		target = self.getTargetStar()
+		print(int(target))
+		if target != None and report.stars[target].owner == player_uid:
+			return True
+		else:
+			return False
 
 class Star():
 	def __init__(self, star):
@@ -114,10 +132,31 @@ class Star():
 		''' Returns distance between this star and the star object passed in '''
 		return self.position.distance(star.postion)
 
-# TODO(bhayes): Finish Player class, and it's json parsing
+class Tech():
+	def __init__(self, tech):
+		self.banking = tech["banking"]
+		self.manufacturing = tech["manufacturing"]
+		self.propulsion = tech["propulsion"]
+		self.research = tech["research"]
+		self.scanning = tech["scanning"]
+		self.terraforming = tech["terraforming"]
+		self.weapons = tech["weapons"]
+
+# TODO: Finish Player class, and it's json parsing
 class Player():
 	def __init__(self, player):
 		self.uid = player["uid"]
+		self.ai = player["ai"]
+		self.alias = player["alias"]
+		self.avatar = player["avatar"]
+		self.conceded = player["conceded"]
+		self.huid = player["huid"]
+		self.tech = Tech(player["tech"])
+		self.total_economy = player["total_economy"]
+		self.total_industry = player["total_industry"]
+		self.total_fleets = player["total_fleets"]
+		self.total_stars = player["total_stars"]
+		self.total_strength = player["total_strength"]
 
 class Report():
 	def __init__(self, report):
@@ -147,9 +186,9 @@ class Report():
 		self.turn_based_time_out = self.json_report["turn_based_time_out"]
 
 		# Generate fleet objects
-		self.fleet = {}
+		self.fleets = {}
 		for key, fleet in self.json_report["fleets"].items():
-			self.fleet[key] = Fleet(fleet)
+			self.fleets[key] = Fleet(fleet)
 
 		# Generate player objects
 		self.players = {}
@@ -174,7 +213,7 @@ class Neptune():
 		# Get intel report
 		rv = self.APICall(NEPTUNE_API, "intel_data")
 
-		# TODO(bhayes): Do something interesting with this intel
+		# TODO: Do something interesting with this intel
 		self.intel = rv
 
 	def setGameNumber(self, gamenumber):
@@ -188,21 +227,21 @@ class Neptune():
 					if "game_number" in NEPTUNE_API[key]["data"]:
 						NEPTUNE_API[key]["data"]["game_number"] = self._gamenumber
 		else:
-			raise RuntimeError("Invalid game number")
+			raise RuntimeError("Invalid Game Number")
 
 	def getGameNumber(self):
 		return self._gamenumber
 
 	def listGames(self):
 		if not self.connected:
-			raise RuntimeError("You must connect first")
+			raise RuntimeError("Connection Error")
 
 	def fetchLiveReport(self):
 		''' Download full universe report for latest tick from neptune server '''
 		if not self.connected:
-			raise RuntimeError("You must connect first")
+			raise RuntimeError("Connection Error")
 		elif not self._gamenumber:
-			raise RuntimeError("You must select a game number first.")
+			raise RuntimeError("Invalid Game Number")
 
 		rv = self.APICall(NEPTUNE_API, "full_universe_report")
 		self.report = Report(rv["report"])
@@ -258,11 +297,11 @@ class Neptune():
 			try:
 				rv = self.session.POST(NEPTUNE_API["root_url"], NEPTUNE_API["login"]["path"], NEPTUNE_API["login"]["data"], {"Content-Type" : NEPTUNE_API["login"]["content-type"]})
 				if (rv[0] != "meta:login_success"):
-					raise ValueError('LOGIN FAILED')
+					raise RuntimeError('Login Failed')
 
 				rv = self.session.POST(NEPTUNE_API["root_url"], NEPTUNE_API["init_player"]["path"], NEPTUNE_API["init_player"]["data"], {"Content-Type" : NEPTUNE_API["init_player"]["content-type"]})
 				if (rv[0] != "meta:init_player"):
-					raise ValueError('INIT FAILED')
+					raise RuntimeError('Init Failed')
 			except Exception as e:
 				if attempts > 0:
 					attempts -= 1
