@@ -1,0 +1,7 @@
+version: '3'
+services: 
+  neptunewatcher:
+    container_name: neptunewatcher
+    build: .
+    env_file: .env
+
