@@ -77,3 +77,19 @@ def main():
  + players
   - uid
 ```
+
+## Using with Docker
+
+1. Ensure you have Docker Desktop (Windows/Mac) or `docker-ce` installed (Linux)
+
+2. Clone this repo (`git clone https://github.com/Pr0meth3us/neptune-watcher`)
+
+3. Change into the new directory (`cd neptune-watcher`)
+
+4. Copy or rename the `.env.example` file to `.env`
+
+5. Update values in this `.env` file to reflect your values (Webhook URL, username/password, game URL)
+
+6. Run `docker-compose up -d` to build and start the container
+
+7. Wait for attacks to come in
