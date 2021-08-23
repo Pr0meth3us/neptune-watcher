@@ -10,3 +10,5 @@
 
 # MacOS artifacts
 .DS*
+
+.env
