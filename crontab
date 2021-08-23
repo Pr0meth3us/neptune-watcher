@@ -1,0 +1,1 @@
+10 * * * * /usr/local/bin/python /app/check_attackers.py 2>&1 /output.debug.log
