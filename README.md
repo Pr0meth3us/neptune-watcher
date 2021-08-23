@@ -88,8 +88,10 @@ def main():
 
 4. Copy or rename the `.env.example` file to `.env`
 
-5. Update values in this `.env` file to reflect your values (Webhook URL, username/password, game URL)
+5. Update values in this `.env` file to reflect your values (Webhook URL, username/password, game URL) within quotes
 
 6. Run `docker-compose up -d` to build and start the container
 
 7. Wait for attacks to come in
+
+To stop the Docker container, run `docker-compose down`
