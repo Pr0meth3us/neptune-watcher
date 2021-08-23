@@ -9,7 +9,7 @@ COPY crontab /etc/cron.d/crontab
 RUN chmod 0644 /etc/cron.d/crontab
 RUN /usr/bin/crontab /etc/cron.d/crontab
 
-RUN cd neptunepy-master && python setup.py install
+RUN cd neptunepy && python setup.py install
 
 RUN pip install -r requirements.txt
 
