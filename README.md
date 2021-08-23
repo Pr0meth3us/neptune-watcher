@@ -1,4 +1,38 @@
-# Data colleciton and API usage for Neptune's Pride 2
+# Neptune's Pride 2 Attack Monitor
+
+This is a repo made of script(s) that will monitor your stars and fleets in Neptune's Pride 2.
+
+When an attack on one of your stars is detected, it will send a message to a Discord channel that is configured with a webhook with information about the attacker, your defenses, and who is expected to win
+
+## Using with Docker
+
+1. Ensure you have Docker Desktop (Windows/Mac) or `docker-ce` installed (Linux)
+
+2. Clone this repo (`git clone https://github.com/Pr0meth3us/neptune-watcher`)
+
+3. Change into the new directory (`cd neptune-watcher`)
+
+4. Copy or rename the `.env.example` file to `.env`
+
+5. Update values in this `.env` file to reflect your values (Webhook URL, username/password, game URL) within quotes
+
+6. Update the `crontab` file to run slightly after your game ticks. How long after is up to you, I recommend a few minutes.
+
+    a. For example, if your game "ticks" or has a production cycle at 2:18PM and you want it to run 5mins after, the start of the crontab would look like: `23 * * * *`
+
+    b. Since a "tick" happens every hour, the example crontab above would run on the 23rd minute of every hour.
+
+    c. This follows the [standard crontab format](https://crontab.guru/)
+
+7. Run `docker-compose up -d` to build and start the container
+
+8. Wait for attacks to come in, attacks will be sent to the Discord webhook
+
+To stop the Docker container, run `docker-compose down`
+
+---
+
+## Data colleciton and API usage for Neptune's Pride 2 (Originally written by bryantfhayes)
 
 STATUS: IN DEVELOPMENT (Python 3.3.2)
 
@@ -78,20 +112,3 @@ def main():
   - uid
 ```
 
-## Using with Docker
-
-1. Ensure you have Docker Desktop (Windows/Mac) or `docker-ce` installed (Linux)
-
-2. Clone this repo (`git clone https://github.com/Pr0meth3us/neptune-watcher`)
-
-3. Change into the new directory (`cd neptune-watcher`)
-
-4. Copy or rename the `.env.example` file to `.env`
-
-5. Update values in this `.env` file to reflect your values (Webhook URL, username/password, game URL) within quotes
-
-6. Run `docker-compose up -d` to build and start the container
-
-7. Wait for attacks to come in
-
-To stop the Docker container, run `docker-compose down`
