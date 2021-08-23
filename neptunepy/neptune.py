@@ -88,6 +88,7 @@ class Fleet():
     self.name = fleet["n"]
     self.targets = fleet["o"]
     self.owner = fleet["puid"]
+    self.shipCount = fleet["st"]
 
   def getTargetStar(self):
     for target in self.targets:
@@ -95,8 +96,7 @@ class Fleet():
 
   def isTargetingPlayer(self, player_uid, report):
     target = self.getTargetStar()
-    print(int(target))
-    if target != None and report.stars[target].owner == player_uid:
+    if target != None and report.stars[str(target)].owner == player_uid:
       return True
     else:
       return False
