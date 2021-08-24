@@ -89,6 +89,8 @@ class Fleet():
     self.targets = fleet["o"]
     self.owner = fleet["puid"]
     self.shipCount = fleet["st"]
+    self.x = fleet["x"]
+    self.y = fleet["y"]
 
   def getTargetStar(self):
     for target in self.targets:
