@@ -2,6 +2,7 @@ version: '3'
 services: 
   neptunewatcher:
     container_name: neptunewatcher
+    restart: always
     build: .
     env_file: .env
 
